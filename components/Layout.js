@@ -4,7 +4,7 @@ import Sidebar from "./Sidebar";
 const Layout = props => (
     <div className="container-fluid">
         <div className="row">
-            <div className="col-2 bg-dark">
+            <div className="col-2 bg-dark text-light">
                 <Sidebar />
             </div>
             <div className="col-10">
