@@ -1,8 +1,12 @@
-import Layout from '../components/Layout';
+import Head from "next/head"
+import Layout from "../components/Layout";
 
 function Home() {
   return (
     <>
+      <Head>
+        <title>Index</title>
+      </Head>
       <Layout>
       <main className="container">
         <h1>
