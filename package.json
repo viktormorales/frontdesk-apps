@@ -7,15 +7,23 @@
     "start": "next start -p $PORT"
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/data-grid": "^4.0.0-alpha.18",
+    "@material-ui/icons": "^4.11.2",
+    "clsx": "^1.1.1",
+    "csvtojson": "^2.0.10",
+    "formidable": "^1.2.2",
+    "moment": "^2.29.1",
+    "mongodb": "^3.6.3",
     "next": "10.0.5",
+    "prop-types": "^15.7.2",
     "react": "17.0.1",
-    "react-dom": "17.0.1"
+    "react-dom": "17.0.1",
+    "read-excel-file": "^5.0.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.2.1",
-    "bootstrap": "^4.5.3",
     "postcss": "^8.2.4",
-    "react-bootstrap": "^1.4.3",
     "sass": "^1.32.4"
   }
 }
