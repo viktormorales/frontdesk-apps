@@ -1,3 +1,4 @@
+import React, {useState} from 'react'
 import Head from "next/head"
 import { connectToDatabase } from "../../../utils/mongodb"
 import Layout from "../../../layouts/admin/Layout"
@@ -6,9 +7,28 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
+import { DataGrid } from '@material-ui/data-grid';
 
-function Guests({guests}) {
+function Guests() {
+	const columns = [
+		{ field: 'suite', headerName: '#', width: 90 },
+		{
+		  field: 'guest',
+		  headerName: 'Cliente',
+		  width: 200,
+		  description: 'This column has a value getter and is not sortable.',
+		  sortable: false,
+		  width: 160,
+		  valueGetter: (params) =>
+			`${params.getValue('firstName') || ''} ${params.getValue('lastName') || ''}`,
+		},
+		{ field: 'checkout', headerName: 'Checkout', width: 120 },
+		{ field: 'adults', headerName: 'Adultos', width: 120 },
 	
+	];
+
+	const [guests, setGuest] = useState([]);
+
 	const importGuests = async event => {
 		event.preventDefault();
 		
@@ -31,9 +51,10 @@ function Guests({guests}) {
 			body: formData
 		})
 		
-		if (res.status === 200) {   
+		if (res.status === 200) { 
 			let response = await res.json();
-			console.log(response)
+			console.log(response.filtered)
+			//setGuest(response.filtered)
 		}
 		
 	}
@@ -59,6 +80,10 @@ function Guests({guests}) {
 						</Grid>
 					</Grid>
 				</form>
+
+				<div style={{ height: 400, width: '100%' }}>
+					<DataGrid rows={guests} columns={columns} pageSize={10} checkboxSelection />
+				</div>
 			</Container>
 		</Layout>
 	</>

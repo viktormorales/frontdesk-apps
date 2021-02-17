@@ -1,8 +1,6 @@
 import { connectToDatabase } from "../../../utils/mongodb"
 import formidable from 'formidable'
 import moment from 'moment'
-import { Timestamp } from "mongodb";
-import { dateFormatter } from "@material-ui/data-grid";
 const xlsxFile = require('read-excel-file/node');
 
 export default async (req, res) => {
@@ -13,7 +11,6 @@ export default async (req, res) => {
 			if (err)
 				return err
 			
-			const fecha = new Date()
 			const schema = {
 				'N° Habitacion': {
 					prop: '#',
@@ -24,9 +21,9 @@ export default async (req, res) => {
 					type: String
 				},
 				'Check Out': {
-					prop: 'date',
+					prop: 'checkout',
 					type: (value) => {
-						return moment.utc(value).format('DD-MM-YY hh:mm') 
+						return moment.utc(value).format('DD/MM/YY hh:mm') 
 						//FIJATE CON ESTO
 						//moment('2016-01-01T00:00:00+02:00').format()
 						//This date is shifted by 2 hours, moving from +2 to UTC
@@ -41,10 +38,10 @@ export default async (req, res) => {
 					type: Number
 				}
 			}
-			xlsxFile(files.file.path, { schema }).then((rows) => {
-				/*
-				// Quita la primera fila cabecera
-				rows.splice(0,1);
+
+			xlsxFile(files.file.path, { schema }).then((data) => {
+				//return console.log(data.rows);
+				let rows = data.rows;
 				// Declara array controlador
 				let unique = {};
 				// Array donde guardar las filas filtrdas
@@ -54,17 +51,17 @@ export default async (req, res) => {
 				// Recorre el array "rows" asignando a cada fila la variable "row"
 				rows.forEach((row) => {
 					// Si la columna 2 de la fila actual no se encuentra en nuestra nueva variable de control "unique"
-					if(!unique[row[2]]) {
+					if(!unique[row['#']]) {
 						// Agrega el item al array controlador para comparar en el próximo FOR
-						unique[row[2]] = [row[2]];
+						unique[row['#']] = row['#'];
 						// Agrega el item al array filtrado con las columnas
-						filtered[i] = [row[2], row[3], row[5], row[7], row[12], row[13]];
+						filtered[i] = row;
 						i++
 					}
 				});
-				*/
+				
 				// Devuelve la respuesta JSON
-				res.json({fields, rows});
+				res.json({fields, rows, filtered});
 			});
 		})
 
