@@ -4,16 +4,33 @@ import formidable from 'formidable'
 import moment from 'moment'
 const Excel = require('exceljs')
 
+dbConnect();
+
 export default async (req, res) => {
 	const { method } = req
-	
-	await dbConnect()
 	
 	switch (method) {
 		case 'GET':
 			try {
-				const guests = await Guest.find({})
-				res.status(200).json({success:true, guests})
+				// Si no se especifica la fecha, toma el valor de hoy por defecto
+				let findByDate = req.query.date || moment().format('YYYY-MM-DD');
+				
+				// Formatear fecha y asignar a variables para comparar
+				let chk_in = moment.utc(findByDate).startOf('day').toISOString()
+				let	chk_out = moment.utc(findByDate).endOf('day').toISOString()
+				console.log({chk_in, chk_out})
+
+				// Busca huéspedes donde 
+				// CHECKIN <= fecha buscada
+				// y el CHECKOUT >= fecha buscada
+				// Y ordena ASCENDENTE por número de SUITE
+				// COMPARAR HORAS
+				const guests = await Guest.find({
+					checkin: { $lte: chk_in },
+					checkout: {$gte: chk_out }
+				}).sort({ suite: 1 });
+
+				res.status(200).json({success:true, total: guests.length, guests})
 			} catch (error) {
 				res.status(400).json({success:false})
 			}
@@ -31,49 +48,59 @@ export default async (req, res) => {
 					.then(() => {
 						// Trabaja sobre la primera hoja de la planilla elegida
 						const worksheet = workbook.getWorksheet(1);
+						
 						// Elimina la primera fila (cabeceras del excel)
 						worksheet.spliceRows(0,1)
-						// Array de control
-						let unique = {};
+
 						// Array final con listado filtrado
 						let filtered = [];
-						let i = 0;
-						let guest = '';
+
 						// Recorre cada fila del archivo Excel
 						worksheet.eachRow((row, rowNumber) => {
-							// Si nuestra array de control no tiene asignado el valor actual
-							if (!unique[row.values[3]]) {
-								// Lo asigna para el próximo recorrido
-								unique[row.values[3]] = row.values[3];
-								// Asigna las filas a nuestra array final
-								filtered[i] = {
-									id: i,
-									inhouse_at: fields.date,
-									suite: row.values[3],
-									guest: row.values[4],
-									checkout: row.values[6],
-									pax: row.values[8] + row.values[13] + row.values[14]
-								}
-								// Save
-								guest = new Guest(filtered[i])
-								guest.save((err) => {
-									if (err) return console.log(err)
+							try {
+								// Busca que no exista en la DB un código de reserva igual
+								Guest.findOne({bookingCode: row.values[2]}, (err, guest) => {
+									if (err) console.log(err);
+									
+									// Si ya existe el huesped, agregar acompañantes
+									// Sino agregarlo
+									if (guest) {
+										//MIENTRAS CODIGO DE RSVA IGUAL => SI PEPE NO EXISTE, AGREGALO
+										// comparar pax con acompañantes actuales
+										// segundo comparar nmbres
+										// agregar dato al objeto "acompañante"
+									} else {
+										
+										let guest_info = {
+											bookingCode: row.values[2],
+											checkin: row.values[5],
+											checkout: row.values[6],
+											suite: row.values[3],
+											guestName: row.values[4],
+										}
+										filtered.push(guest_info);
+										let new_guest = Guest.create(guest_info);
+									}
 								})
-								i++;
+							} catch(error) {
+								console.log(error)
 							}
 						});
 	
 						// Devuelve la respuesta JSON con el listado filtrado
 						res.status(200);
 						res.json({fields, filtered});
+						res.end();
 					})
 				})
 			} catch (error) {
-				res.status(400).json({success:false})
+				res.status(400).json({success:false});
+				res.end();
 			}
 			break;
 		default:
 			res.status(400).json({ success: false });
+			res.end();
 			break;
 	}
     
