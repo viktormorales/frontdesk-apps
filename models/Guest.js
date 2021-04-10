@@ -1,34 +1,47 @@
 import mongoose from 'mongoose';
 import moment from 'moment';
-const Schema = mongoose.Schema;
 
 const opts = { toJSON: { virtuals: true } };
-const guestSchema = new Schema({
-  inhouse_at: {
-    type: Date
+let guest = new mongoose.Schema({
+  bookingCode: {
+    type: String,
+    unique: true
+  },
+  checkin: {
+	  type: Date
+  },
+  checkout: {
+    type: Date,
   },
   suite: {
     type: Number,
     required: true
   },
-  guest: {
-    type: String,
-    required: true
-  },
-  checkout: {
-      type: Date,
+  guestName: {
+    type: String
   },
   pax: {
       type: Number,
       default: 1
+  },
+  bebes: {
+    type: Number,
+    default: 0
   }
 }, opts);
 
-guestSchema.virtual('checkout_time').get(function() {
-	return moment(this.checkout).format('HH:mm');
-});
-guestSchema.virtual('checkout_date').get(function() {
-  return moment(this.checkout).format('D/MM/YYYY');
+mongoose.models = {}
+
+guest.virtual('checkinDate').get(function() {
+  return moment(this.checkin).format('YYYY-MM-DD');
+  //return this.email.slice(this.email.indexOf('@') + 1);
 });
 
-export default mongoose.model('Guest', guestSchema);
+guest.virtual('checkoutDate').get(function() {
+  return moment(this.checkout).format('YYYY-MM-DD');
+  //return this.email.slice(this.email.indexOf('@') + 1);
+});
+
+let Guest = mongoose.model('Guest', guest);
+
+export default Guest
