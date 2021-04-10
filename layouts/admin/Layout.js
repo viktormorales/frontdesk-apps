@@ -71,8 +71,8 @@ function ResponsiveDrawer(props) {
 		{ "icon": <ApartmentIcon />, "text": "Huéspedes", "link": "/admin/guests" },
 		{ "icon": <PermPhoneMsgIcon />, "text": "Mensajes", "link": "/admin/messages" },
 		{ "icon": <LocalCafeIcon />, "text": "Desayuno", "link": "/admin/breakfast" },
-		{ "icon": <HotTubIcon />, "text": "Turnos Spa", "link": "#" },
-		{ "icon": <SpaIcon />, "text": "Turnos Masajes", "link": "#" },
+		{ "icon": <HotTubIcon />, "text": "Turnos Spa", "link": "/admin/spa" },
+		{ "icon": <SpaIcon />, "text": "Turnos Masajes", "link": "/admin/massages" },
 	]
 
 	const drawer = (
